@@ -47,25 +47,6 @@ def changestate():
         else:
             return json.dumps({'ID' : 'relayID=' + str(relay.id), 'error' : 'State change failed!'})
 
-@app.route('/relay/on/<id>')
-def relay_on(id):
-    try:
-        id = int(id)
-        r = Relay()
-        RelayController.relayOn(r.query.get(id))
-        return redirect(url_for('relays'))
-    except TypeError:
-        abort(400)
-
-@app.route('/relay/off/<id>')
-def relay_off(id):
-    try:
-        id = int(id)
-        r = Relay()
-        RelayController.relayOff(r.query.get(id))
-        return redirect(url_for('relays'))
-    except TypeError:
-        abort(400)
 
 # Login functionality
 def is_safe_url(target):
@@ -87,7 +68,7 @@ def login():
         user = User()
         if user.password == form.password.data:
             login_user(user, remember=True)
-            flash('Login succesfull!')
+            flash('Login succesful!')
 
             next = request.args.get('next')
             app.logger.debug('Redirection target after login: ' + str(next))
