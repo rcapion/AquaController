@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!flask/bin/python3
 from app import app
 import app.relaycontroller as RelayController
 if __name__ == '__main__':

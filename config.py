@@ -1,6 +1,9 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+# Login password
+LOGIN_PASSWORD = 'Test'
+
 # Debugging
 DEBUG = True
 DEBUG_TOOLBAR = False

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block head %}{{ super() }}{% endblock %}
+{% block content %}
+  <h1>Overview</h1>
+  {% if current_user.is_authenticated %}
+    Goto <a href="{{ url_for('relays') }}">Relays</a>
+  {% else %}
+    <p>Do you want to <a href="{{ url_for('login') }}">log in?</a>
+  {% endif %}
+{% endblock %}

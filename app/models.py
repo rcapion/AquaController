@@ -1,4 +1,4 @@
-from app import db
+from app import app, db
 from flask_login import UserMixin
 
 class RelayGroups(db.Model):
@@ -35,4 +35,4 @@ class User(UserMixin):
     def __init__(self):
         self.id = 1
         self.name = 'admin'
-        self.password = 'password'
+        self.password = app.config['LOGIN_PASSWORD']

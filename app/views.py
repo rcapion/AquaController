@@ -11,9 +11,8 @@ from app import relaycontroller as RelayController
 
 @app.route('/')
 @app.route('/index')
-@login_required
 def index():
-    return "Hello, World!"
+    return render_template('index.html')
 
 @app.route('/relays')
 @login_required
@@ -88,6 +87,7 @@ def login():
         user = User()
         if user.password == form.password.data:
             login_user(user, remember=True)
+            flash('Login succesfull!')
 
             next = request.args.get('next')
             app.logger.debug('Redirection target after login: ' + str(next))
@@ -97,6 +97,8 @@ def login():
                 return abort(400)
 
             return redirect(next or url_for('index'))
+        else:
+            flash('Password incorrect!')
     return render_template("login.html", form=form)
 
 @app.route("/logout", methods=["GET"])

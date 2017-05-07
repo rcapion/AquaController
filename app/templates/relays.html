@@ -1,11 +1,11 @@
-<html>
-<head>
-  <title>Relays</title>
+{% extends "base.html" %}
+{% block title %}Relays{% endblock %}
+{% block head %}
+  {{ super() }}
   <script src="{{ url_for('static', filename='jquery-3.2.1.js') }}"></script>
   <script src="{{ url_for('static', filename='relayChangeState.js') }}"></script>
-</head>
-<body>
-  <h1>Relays</h1>
+{% endblock %}
+{% block content %}
   <table>
     <tr>
       <th align="left">ID</th>
@@ -27,5 +27,4 @@
     </tr>
     {% endfor %}
   </table>
-</body>
-</html>
+{% endblock %}
