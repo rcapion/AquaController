@@ -1,0 +1,31 @@
+<html>
+<head>
+  <title>Relays</title>
+  <script src="{{ url_for('static', filename='jquery-3.2.1.js') }}"></script>
+  <script src="{{ url_for('static', filename='relayChangeState.js') }}"></script>
+</head>
+<body>
+  <h1>Relays</h1>
+  <table>
+    <tr>
+      <th align="left">ID</th>
+      <th align="left">Name</th>
+      <th align="left">Pin#</th>
+      <th align="left">Connection</th>
+      <th align="left">Group</th>
+      <th align="left">State</th>
+    </tr>
+    {% for i in r: %}
+    <tr>
+      <td>{{ i.id }}</td>
+      <td>{{ i.name }}</td>
+      <td>{{ i.pin }}</td>
+      <td>{{ i.connection }}</td>
+      <td>{{ i.group.name }}</td>
+      <td>
+  				<button id="relayID={{ i.id }}">{{ 'On' if i.state else 'Off' }}</button>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
