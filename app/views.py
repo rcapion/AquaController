@@ -23,14 +23,14 @@ def relays():
 @app.route('/relays/changestate', methods=['POST'])
 @login_required
 def changestate():
-    request.form
     id = request.form['relayID']
+    app.logger.debug('Passed ID: ' + str(id))
 
     relay = Relay.query.get(id)
 
     app.logger.debug('Changing state using AJAX. Relay ID: ' + str(relay.RelayID) + ' Current relay state: ' + str(relay.State))
 
-    if relay.state:
+    if relay.State:
         app.logger.debug('Turning relay OFF...')
         result = RelayController.relayOff(relay)
         app.logger.debug('Result: ' + str(result))

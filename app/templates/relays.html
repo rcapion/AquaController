@@ -17,13 +17,13 @@
     </tr>
     {% for i in r: %}
     <tr>
-      <td>{{ i.id }}</td>
-      <td>{{ i.name }}</td>
-      <td>{{ i.pin }}</td>
-      <td>{{ i.connection }}</td>
-      <td>{{ i.group.name }}</td>
+      <td>{{ i.RelayID }}</td>
+      <td>{{ i.Name }}</td>
+      <td>{{ i.Pin }}</td>
+      <td>{{ i.Connection }}</td>
+      <td>{{ i.RelayGroup.Name }}</td>
       <td>
-  				<button id="relayID={{ i.id }}">{{ 'On' if i.state else 'Off' }}</button>
+  				<button id="relayID={{ i.RelayID }}">{{ 'On' if i.State else 'Off' }}</button>
     </tr>
     {% endfor %}
   </table>
