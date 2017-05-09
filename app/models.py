@@ -3,10 +3,9 @@ from flask_login import UserMixin
 
 class RelayGroup(db.Model):
     # Database model
-    __tablename__ = 'relaygroup'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-    relays = db.relationship('Relay', backref='group', lazy='dynamic')
+    RelayGroupID = db.Column(db.Integer, primary_key=True)
+    Name = db.Column(db.String(50), unique=True)
+    Relays = db.relationship('Relay', backref='RelayGroup', lazy='dynamic')
 
     def __repr__(self):
         return '<RelayGroup {} - {}>'.format(self.id, self.name)
@@ -14,26 +13,34 @@ class RelayGroup(db.Model):
 
 class Relay(db.Model):
         # Database model
-        __tablename__ = 'relay'
-        id = db.Column(db.Integer, primary_key=True)
-        name = db.Column(db.String(50), unique=True)
-        pin = db.Column(db.Integer, nullable=True, unique=True)
-        connection = db.Column(db.String(2))
-        state = db.Column(db.Boolean, nullable=True)
-        group_id = db.Column(db.Integer, db.ForeignKey('relaygroups.id'))
+        RelayID = db.Column(db.Integer, primary_key=True)
+        Name = db.Column(db.String(50), unique=True)
+        Pin = db.Column(db.Integer, nullable=True, unique=True)
+        Connection = db.Column(db.String(2))
+        State = db.Column(db.Boolean, nullable=True)
+        RelayGroupID = db.Column(db.Integer, db.ForeignKey('RelayGroup.id'))
 
         def __repr__(self):
             return '<Relay {} - {}>'.format(self.id, self.name)
 
+
 class RelayScenario(db.Model):
     # Database model
-    __tablename__ = 'relayscenario'
-    id = db.Column(db.Integer)
-    relay_id = db.Column(db.Integer, db.ForeignKey('relay.id'))
-    state = db.Column(db.Boolean, nullable=True)
+    RelayScenarioID = db.Column(db.Integer, primary_key=True)
+    Name = db.Column(db.String(50), unique=True)
 
     def __repr__(self):
-        return '<RelayScenario {} - {}, {}>'.format(self.id, self.relay_id, self.state)
+        return '<RelayScenario {} - {}, {}>'.format(self.RelayScenarioID, self.Name)
+
+
+class RelayScenarioSetup(db.Model):
+    RelayScenarioID = db.Column(db.Integer, primary_key=True, db.ForeignKey('RelayScenario.RelayScenarioID'))
+    RelayID = db.Column(db.Integer, db.ForeignKey('Relay.RelayID'))
+    State = db.Column(db.Boolean, nullable=True)
+
+    def __repr__(self):
+        return '<RelayScenarioSetup {} - {}, {}'.format(self.RelayScenarioID, self.RelayID, self.State)
+
 
 class User(UserMixin):
 

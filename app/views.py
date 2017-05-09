@@ -28,24 +28,24 @@ def changestate():
 
     relay = Relay.query.get(id)
 
-    app.logger.debug('Changing state using AJAX. Relay ID: ' + str(relay.id) + ' Current relay state: ' + str(relay.state))
+    app.logger.debug('Changing state using AJAX. Relay ID: ' + str(relay.RelayID) + ' Current relay state: ' + str(relay.State))
 
     if relay.state:
         app.logger.debug('Turning relay OFF...')
         result = RelayController.relayOff(relay)
         app.logger.debug('Result: ' + str(result))
         if result:
-            return json.dumps({'ID' : 'relayID=' + str(relay.id), 'relayStateText' : 'Off'})
+            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'relayStateText' : 'Off'})
         else:
-            return json.dumps({'ID' : 'relayID=' + str(relay.id), 'error' : 'State change failed!'})
+            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'error' : 'State change failed!'})
     else:
         app.logger.debug('Turning relay ON...')
         result = RelayController.relayOn(relay)
         app.logger.debug('Result: ' + str(result))
         if result:
-            return json.dumps({'ID' : 'relayID=' + str(relay.id), 'relayStateText' : 'On'})
+            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'relayStateText' : 'On'})
         else:
-            return json.dumps({'ID' : 'relayID=' + str(relay.id), 'error' : 'State change failed!'})
+            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'error' : 'State change failed!'})
 
 
 # Login functionality

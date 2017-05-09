@@ -14,19 +14,19 @@ def setupRelays():
     _relays = Relay.query.all()
     for relay in _relays:
         # Testing for valid pin and setting pin as output
-        if isinstance(relay.pin, int) and relay.pin in valid_pins:
-            app.logger.info('Setting up GPIO pin ' + str(relay.pin) + ' for relay ' + str(relay.id) + ' \'' + relay.name + '\'')
-            GPIO.setup(relay.pin, GPIO.OUT, initial=GPIO.HIGH)
+        if isinstance(relay.Pin, int) and relay.Pin in valid_pins:
+            app.logger.info('Setting up GPIO pin ' + str(relay.Pin) + ' for relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\'')
+            GPIO.setup(relay.Pin, GPIO.OUT, initial=GPIO.HIGH)
         else:
-            app.logger.error('Unable to setup GPIO pin - pin number \'' + str(relay.pin) + '\' not valid!')
+            app.logger.error('Unable to setup GPIO pin - pin number \'' + str(relay.Pin) + '\' not valid!')
 
 def resumeState():
     '''Sets all relays to last known state'''
     # Go through all relays and get last state and set accordingly
     _relays = Relay.query.all()
     for relay in _relays:
-        app.logger.info('Turning relay ' + str(relay.id) + ' \'' + relay.name + '\' ' + ('ON' if relay.state else 'OFF'))
-        setState(relay, relay.state)
+        app.logger.info('Turning relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' ' + ('ON' if relay.State else 'OFF'))
+        setState(relay, relay.State)
         app.logger.debug('Sleeping...')
         sleep(1)
 def cleanup():
@@ -35,49 +35,49 @@ def cleanup():
     GPIO.cleanup()
 
 def setState(relay, state):
-    if relay.pin in valid_pins:
-        if (state and relay.connection == 'NO') or (not state and relay.connection == 'NC'):
-            app.logger.debug('Setting output to GPIO.LOW, because state=' + str(state) + ' and connection=' + relay.connection)
+    if relay.Pin in valid_pins:
+        if (state and relay.Connection == 'NO') or (not state and relay.Connection == 'NC'):
+            app.logger.debug('Setting output to GPIO.LOW, because state=' + str(state) + ' and connection=' + relay.Connection)
             try:
-                GPIO.output(relay.pin, GPIO.LOW)
-                app.logger.info('Relay ' + str(relay.id) + ' \'' + relay.name + '\' turned ' + ('ON' if state else 'OFF'))
+                GPIO.output(relay.Pin, GPIO.LOW)
+                app.logger.info('Relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' turned ' + ('ON' if state else 'OFF'))
                 return True
             except:
                app.logger.error('Unexpected error when setting GPIO.output')
                return False
 
-        elif (state and relay.connection == 'NC') or (not state and relay.connection == 'NO'):
-            app.logger.debug('Setting output to GPIO.HIGH, because state=' + str(state) + ' and connection=' + relay.connection)
+        elif (state and relay.Connection == 'NC') or (not state and relay.Connection == 'NO'):
+            app.logger.debug('Setting output to GPIO.HIGH, because state=' + str(state) + ' and connection=' + relay.Connection)
             try:
-                GPIO.output(relay.pin, GPIO.HIGH)
-                app.logger.info('Relay ' + str(relay.id) + ' \'' + relay.name + '\' turned ' + ('ON' if state else 'OFF'))
+                GPIO.output(relay.Pin, GPIO.HIGH)
+                app.logger.info('Relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' turned ' + ('ON' if state else 'OFF'))
                 return True
             except:
                app.logger.error('Unexpected error when setting GPIO.output')
                return False
 
         else:
-            app.logger.error('Unable to set state for relay ' + str(relay.id) + ' \'' + relay.name + '\' because connection type \'' + relay.connection + '\' is unknown')
+            app.logger.error('Unable to set state for relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' because connection type \'' + relay.Connection + '\' is unknown')
             return False
     else:
-        app.logger.error('Unable to set state for relay ' + str(relay.id) + ' \'' + relay.name + '\' because of invalid GPIO pin')
+        app.logger.error('Unable to set state for relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' because of invalid GPIO pin')
         return False
 
 
 def relayOn(relays):
     if hasattr(relays, '__iter__'):
         for relay in relays:
-            app.logger.info('Turning relay ' + str(relay.id) + ' \'' + relay.name + '\' ' + 'ON')
+            app.logger.info('Turning relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' ' + 'ON')
             result = setState(relay, True)
-            app.logger.info('Saving state for relay ' + str(relay.id) + ' \'' + relay.name + '\' ')
-            relay.state = True
+            app.logger.info('Saving state for relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' ')
+            relay.State = True
             db.session.commit()
             app.logger.debug('State saved')
     else:
-        app.logger.info('Turning relay ' + str(relays.id) + ' \'' + relays.name + '\' ' + 'ON')
+        app.logger.info('Turning relay ' + str(relays.RelayID) + ' \'' + relays.Name + '\' ' + 'ON')
         result = setState(relays, True)
-        app.logger.info('Saving state for relay ' + str(relays.id) + ' \'' + relays.name + '\' ')
-        relays.state = True
+        app.logger.info('Saving state for relay ' + str(relays.RelayID) + ' \'' + relays.Name + '\' ')
+        relays.State = True
         db.session.commit()
         app.logger.debug('State saved')
 
@@ -86,17 +86,17 @@ def relayOn(relays):
 def relayOff(relays):
     if hasattr(relays, '__iter__'):
         for relay in relays:
-            app.logger.info('Turning relay ' + str(relay.id) + ' \'' + relay.name + '\' ' + 'OFF')
+            app.logger.info('Turning relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' ' + 'OFF')
             result = setState(relay, False)
-            app.logger.debug('Saving state for relay ' + str(relay.id) + ' \'' + relay.name + '\' ')
-            relay.state = False
+            app.logger.debug('Saving state for relay ' + str(relay.RelayID) + ' \'' + relay.Name + '\' ')
+            relay.State = False
             db.session.commit()
             app.logger.debug('State saved')
     else:
-        app.logger.info('Turning relay ' + str(relays.id) + ' \'' + relays.name + '\' ' + 'OFF')
+        app.logger.info('Turning relay ' + str(relays.RelayID) + ' \'' + relays.Name + '\' ' + 'OFF')
         result = setState(relays, False)
-        app.logger.info('Saving state for relay ' + str(relays.id) + ' \'' + relays.name + '\' ')
-        relays.state = False
+        app.logger.info('Saving state for relay ' + str(relays.RelayID) + ' \'' + relays.Name + '\' ')
+        relays.State = False
         db.session.commit()
         app.logger.debug('State saved')
 
