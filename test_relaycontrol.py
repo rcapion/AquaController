@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!flask/bin/python3
 from app import app, db
 import app.relaycontroller as RelayController
 from app.models import Relay
