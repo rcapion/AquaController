@@ -47,7 +47,7 @@ class RelayScenario(db.Model):
         self.Name = Name
 
     def __repr__(self):
-        return '<RelayScenario {} - {}, {}>'.format(self.RelayScenarioID, self.Name)
+        return '<RelayScenario {} - {}>'.format(self.RelayScenarioID, self.Name)
 
 
 class RelayScenarioSetup(db.Model):
@@ -63,7 +63,7 @@ class RelayScenarioSetup(db.Model):
         self.State = State
 
     def __repr__(self):
-        return '<RelayScenarioSetup {} - {}, {}'.format(self.RelayScenarioID, self.RelayID, self.State)
+        return '<RelayScenarioSetup {} - RelayScenario {}, Relay {}, State {}>'.format(self.SetupID, self.RelayScenarioID, self.RelayID, self.State)
 
 
 class User(UserMixin):
