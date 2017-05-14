@@ -17,13 +17,14 @@ def index():
 @app.route('/scheduler')
 @login_required
 def sched():
-    return scheduler.print_jobs()
+    s = scheduler.get_jobs()
+    return render_template('scheduler.html', scheduler=s)
 
 @app.route('/relays')
 @login_required
 def relays():
-    r = Relay()
-    return render_template('relays.html', r=r.query.all())
+    r = Relay.query.all()
+    return render_template('relays.html', r=r)
 
 @app.route('/relays/changestate', methods=['POST'])
 @login_required
