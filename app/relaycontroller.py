@@ -14,10 +14,10 @@ def setupRelays():
     GPIO.setmode(GPIO.BCM)
 
     # Going through all relays and setting them up
-    _relays = Relay.query.all()
-    for relay in _relays:
+    relays = Relay.query.all()
+    for relay in relays:
         # Testing for valid pin and setting pin as output
-        if isinstance(relay.Pin, int) and relay.Pin in valid_pins:
+        if relay.Pin in valid_pins:
             app.logger.info('Setting up GPIO pin {} for relay {} \'{}\''.format(relay.Pin, relay.RelayID, relay.Name))
             GPIO.setup(relay.Pin, GPIO.OUT, initial=GPIO.HIGH)
         else:
@@ -29,12 +29,14 @@ def resumeState():
     app.logger.info('Resuming last known state of all relays')
 
     # Go through all relays and get last state and set accordingly
-    _relays = Relay.query.all()
-    for relay in _relays:
+    relays = Relay.query.all()
+    length = len(relays)
+    for i, relay in enumerate(relays):
         app.logger.info('Turning relay {} \'{}\' {}'.format(relay.RelayID, relay.Name, 'ON' if relay.State else 'OFF'))
         setState(relay, relay.State)
-        app.logger.debug('Sleeping...')
-        sleep(app.config['RELAY_SLEEP_TIME'])
+        if i != length-1:
+            app.logger.debug('Waiting before next relay is being set')
+            sleep(app.config['RELAY_SLEEP_TIME'])
 
 def cleanup():
     '''Cleans up GPIO pins and resets them to input'''
@@ -76,13 +78,17 @@ def setState(relay, state):
 
 def relayOn(relays):
     if hasattr(relays, '__iter__'):
-        for relay in relays:
+        length = len(relays)
+        for i, relay in enumerate(relays):
             app.logger.info('Turning relay {} \'{}\' ON'.format(relays.RelayID, relays.Name))
             result = setState(relay, True)
             app.logger.info('Saving state for relay {} \'{}\''.format(relays.RelayID, relays.Name))
             relay.State = True
             db.session.commit()
             app.logger.debug('State saved')
+            if i != length-1:
+                app.logger.debug('Waiting before next relay is being set')
+                sleep(app.config['RELAY_SLEEP_TIME'])
     else:
         app.logger.info('Turning relay {} \'{}\' ON'.format(relays.RelayID, relays.Name))
         result = setState(relays, True)
@@ -95,13 +101,17 @@ def relayOn(relays):
 
 def relayOff(relays):
     if hasattr(relays, '__iter__'):
-        for relay in relays:
+        length = len(relays)
+        for i, relay in enumerate(relays):
             app.logger.info('Turning relay {} \'{}\' OFF'.format(relays.RelayID, relays.Name))
             result = setState(relay, False)
             app.logger.info('Saving state for relay {} \'{}\''.format(relays.RelayID, relays.Name))
             relay.State = False
             db.session.commit()
             app.logger.debug('State saved')
+            if i != length-1:
+                app.logger.debug('Waiting before next relay is being set')
+                sleep(app.config['RELAY_SLEEP_TIME'])
     else:
         app.logger.info('Turning relay {} \'{}\' OFF'.format(relays.RelayID, relays.Name))
         result = setState(relays, False)
@@ -127,7 +137,8 @@ def activateScenario(scenario, store_state=True):
         app.logger.info('Activating RelayScenario {} \'{}\' - states are not being stored'.format(scenario.RelayScenarioID, scenario.Name))
 
     # Go through RelaySetups in RelayScenario
-    for relay_setup in scenario.Setup:
+    length = len(scenario.Setup)
+    for i, relay_setup in enumerate(scenario.Setup):
         relay = Relay.query.get(relay_setup.RelayID)
         state = relay_setup.State
 
@@ -139,7 +150,8 @@ def activateScenario(scenario, store_state=True):
         else:
             setState(relay, state)
 
-        app.logger.debug('Sleeping...')
-        sleep(app.config['RELAY_SLEEP_TIME'])
+        if i != length-1:
+            app.logger.debug('Sleeping...')
+            sleep(app.config['RELAY_SLEEP_TIME'])
 
     app.logger.info('RelayScenario {} \'{}\' activated'.format(scenario.RelayScenarioID, scenario.Name))
