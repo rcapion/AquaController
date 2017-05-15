@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Relay
+from app.models import Relay, RelayScenario
 import RPi.GPIO as GPIO
 from time import sleep
 
@@ -43,16 +43,36 @@ def cleanup():
 
     app.logger.info('Cleaning up GPIO')
     GPIO.cleanup()
+def processRelayArg(relay_arg):
+    if isinstance(relay_arg, str):
+        relays = Relay.query.filter_by(Name=relay_arg).first()
+        app.logger.debug('Input argument \'{}\' converted to {}'.format(relay_arg, relays))
+    elif isinstance(relay_arg, int):
+        relays = Relay.query.get(relay_arg)
+        app.logger.debug('Input argument \'{}\' converted to {}'.format(relay_arg, relays))
+    elif isinstance(relay_arg, object):
+        relays = relay_arg
+        app.logger.debug('Input argument {} not converted'.format(relays))
+    else:
+        app.logger.error('Input argument is of unknown type')
+        return None
 
-def setState(relay, state):
+    return relays
+
+def setState(relay_arg, state):
     '''Sets/changes state of relay'''
+    # Tests arguments
+    relay = processRelayArg(relay_arg)
+    if relay == None:
+        app.logger.error('Not possible to query Relay based on passed argument  \'{}\''.format(relay_arg))
+        return False
 
     if relay.Pin in valid_pins:
         if (state and relay.Connection == 'NO') or (not state and relay.Connection == 'NC'):
             app.logger.debug('Setting output to GPIO.LOW, because state={} and connection={}'.format(state, relay.Connection))
             try:
                 GPIO.output(relay.Pin, GPIO.LOW)
-                app.logger.info('Relay {} \'{}\' turned {}'.format(relay.RelayID, relay.Name, 'ON' if state else 'OFF'))
+                app.logger.debug('Relay {} \'{}\' turned {}'.format(relay.RelayID, relay.Name, 'ON' if state else 'OFF'))
                 return True
             except:
                 app.logger.error('Unexpected error when setting GPIO.output')
@@ -62,7 +82,7 @@ def setState(relay, state):
             app.logger.debug('Setting output to GPIO.HIGH, because state={} and connection={}'.format(state, relay.Connection))
             try:
                 GPIO.output(relay.Pin, GPIO.HIGH)
-                app.logger.info('Relay {} \'{}\' turned {}'.format(relay.RelayID, relay.Name, 'ON' if state else 'OFF'))
+                app.logger.debug('Relay {} \'{}\' turned {}'.format(relay.RelayID, relay.Name, 'ON' if state else 'OFF'))
                 return True
             except:
                 app.logger.error('Unexpected error when setting GPIO.output')
@@ -76,13 +96,20 @@ def setState(relay, state):
         return False
 
 
-def relayOn(relays):
+def relayOn(relay_arg):
+    # Tests arguments
+    relays = processRelayArg(relay_arg)
+    if relays == None:
+        app.logger.error('Not possible to query Relay based on passed argument  \'{}\''.format(relay_arg))
+        return False
+
+    # Go trough relays and turn them on
     if hasattr(relays, '__iter__'):
         length = len(relays)
         for i, relay in enumerate(relays):
-            app.logger.info('Turning relay {} \'{}\' ON'.format(relays.RelayID, relays.Name))
+            app.logger.info('Turning relay {} \'{}\' ON'.format(relay.RelayID, relay.Name))
             result = setState(relay, True)
-            app.logger.info('Saving state for relay {} \'{}\''.format(relays.RelayID, relays.Name))
+            app.logger.info('Saving state for relay {} \'{}\''.format(relay.RelayID, relay.Name))
             relay.State = True
             db.session.commit()
             app.logger.debug('State saved')
@@ -97,15 +124,23 @@ def relayOn(relays):
         db.session.commit()
         app.logger.debug('State saved')
 
+    # Return result of setState
     return result
 
-def relayOff(relays):
+def relayOff(relay_arg):
+    # Tests arguments
+    relays = processRelayArg(relay_arg)
+    if relays == None:
+        app.logger.error('Not possible to query Relay based on passed argument  \'{}\''.format(relay_arg))
+        return False
+
+    # Go trough relays and turn them off
     if hasattr(relays, '__iter__'):
         length = len(relays)
         for i, relay in enumerate(relays):
-            app.logger.info('Turning relay {} \'{}\' OFF'.format(relays.RelayID, relays.Name))
+            app.logger.info('Turning relay {} \'{}\' OFF'.format(relay.RelayID, relay.Name))
             result = setState(relay, False)
-            app.logger.info('Saving state for relay {} \'{}\''.format(relays.RelayID, relays.Name))
+            app.logger.info('Saving state for relay {} \'{}\''.format(relay.RelayID, relay.Name))
             relay.State = False
             db.session.commit()
             app.logger.debug('State saved')
@@ -120,6 +155,7 @@ def relayOff(relays):
         db.session.commit()
         app.logger.debug('State saved')
 
+    # Return result of setState
     return result
 
 def relayGroupOn(self, group_name):
@@ -128,8 +164,24 @@ def relayGroupOn(self, group_name):
 def relayGroupOff(self, group_name):
     pass
 
-def activateScenario(scenario, store_state=True):
+def activateScenario(scenario_arg, store_state=True):
     '''Activates RelayScenario'''
+    # Tests arguments
+    if isinstance(scenario_arg, str):
+        scenario = RelayScenario.query.filter_by(Name=scenario_arg).first()
+        app.logger.debug('Input argument \'{}\' converted to {}'.format(scenario_arg, scenario))
+    elif isinstance(scenario_arg, int):
+        scenario = RelayScenario.query.get(scenario_arg)
+        app.logger.debug('Input argument \'{}\' converted to {}'.format(scenario_arg, scenario))
+    elif isinstance(scenario_arg, object):
+        scenario = scenario_arg
+        app.logger.debug('Input argument {} not converted'.format(scenario))
+    else:
+        app.logger.error('Input argument is of unknown type')
+
+    if scenario == None:
+        app.logger.error('Not possible to query RelayScenario based on passed argument \'{}\''.format(scenario_arg))
+        return False
 
     if store_state:
         app.logger.info('Activating RelayScenario {} \'{}\' and storing state'.format(scenario.RelayScenarioID, scenario.Name))
@@ -137,9 +189,9 @@ def activateScenario(scenario, store_state=True):
         app.logger.info('Activating RelayScenario {} \'{}\' - states are not being stored'.format(scenario.RelayScenarioID, scenario.Name))
 
     # Go through RelaySetups in RelayScenario
-    length = len(scenario.Setup)
+    length = len(scenario.Setup.all())
     for i, relay_setup in enumerate(scenario.Setup):
-        relay = Relay.query.get(relay_setup.RelayID)
+        relay = relay_setup.RelayID
         state = relay_setup.State
 
         if store_state:
@@ -155,3 +207,4 @@ def activateScenario(scenario, store_state=True):
             sleep(app.config['RELAY_SLEEP_TIME'])
 
     app.logger.info('RelayScenario {} \'{}\' activated'.format(scenario.RelayScenarioID, scenario.Name))
+    return True
