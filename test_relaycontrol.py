@@ -16,34 +16,51 @@ RelayController.resumeState()
 print('*****************************************************')
 print('**  Testing relayOn, relayOff                      **')
 print('*****************************************************')
+#
+# sleep(2)
+# RelayController.relayOn(Relay.query.get(1))
+# sleep(2)
+# RelayController.relayOff(Relay.query.get(1))
+# sleep(1)
+# RelayController.relayOn(Relay.query.all())
+# sleep(2)
+# RelayController.relayOff(Relay.query.all())
+# sleep(5)
 
-r=Relay()
+r = Relay.query.get(1)
+s = r.Name
+t = r.RelayID
+lst = [r, s, t, 'test2', 47]
 
-sleep(2)
-RelayController.relayOn(r.query.get(1))
-sleep(2)
-RelayController.relayOff(r.query.get(1))
-sleep(1)
-RelayController.relayOn(r.query.get(2))
-sleep(2)
-RelayController.relayOff(r.query.get(2))
-sleep(5)
+print(lst)
 
-print('*****************************************************')
-print('**  Testing activateScenario                       **')
-print('*****************************************************')
+for i in lst:
+    RelayController.relayOff(i)
+    RelayController.relayOn(i)
 
-s1 = RelayScenario.query.get(1)
-s2 = RelayScenario.query.get(2)
-
-RelayController.activateScenario(s1, False)
-sleep(2)
-RelayController.activateScenario(s2, False)
-sleep(2)
-RelayController.activateScenario(s1)
-sleep(2)
-RelayController.activateScenario(s2)
-sleep(5)
+# print('*****************************************************')
+# print('**  Testing activateScenario                       **')
+# print('*****************************************************')
+#
+# s1 = RelayScenario.query.get(1)
+# s2 = RelayScenario.query.get(2)
+#
+# RelayController.activateScenario(s1, False)
+# sleep(2)
+# RelayController.activateScenario(s2, False)
+# sleep(2)
+# RelayController.activateScenario(s1)
+# sleep(2)
+# RelayController.activateScenario(s2)
+# sleep(5)
+#
+# a=RelayScenario.query.get(1)
+# b=a.Name
+# c=a.RelayScenarioID
+# lst = [a, b, c, 'test', 324]
+#
+# for i in lst:
+#     RelayController.activateScenario(i)
 
 print('*****************************************************')
 print('**  Testing cleanup                                **')
