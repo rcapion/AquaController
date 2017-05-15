@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Relays{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+    {% for s in scheduler: %}
+      {{ s.id }}<br>
+      {{ s.name }}<br>
+      {{ s.args }}<br>
+    {% endfor %}
+{% endblock %}
