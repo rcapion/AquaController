@@ -66,9 +66,16 @@ def relay_scenario():
 
     return render_template('relayscenario.html', scenarios=scenarios)
 
+@app.route('/relayscenario/add', methods=['GET', 'POST'])
+@login_required
+def relay_scenario_add():
+    scenarios = RelayScenario.query.all()
+
+    return render_template('relayscenario.html', scenarios=scenarios)
+
 @app.route('/relayscenario/activate', methods=['POST'])
 @login_required
-def activate_relay_scenario():
+def relay_scenario_activate():
     id = request.form['relayScenarioID']
     app.logger.debug('Passed RelayScenarioID: {}'.format(id))
 
