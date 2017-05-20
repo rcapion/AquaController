@@ -4,7 +4,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 
 from urllib.parse import urlparse, urljoin
 
-from .models import Relay, User
+from .models import Relay, User, RelayScenario
 from .forms import LoginForm
 
 from app import relaycontroller as RelayController
@@ -20,6 +20,9 @@ def sched():
     s = scheduler.get_jobs()
     return render_template('scheduler.html', scheduler=s)
 
+################################################################################
+# Relays
+################################################################################
 @app.route('/relays')
 @login_required
 def relays():
@@ -28,33 +31,64 @@ def relays():
 
 @app.route('/relays/changestate', methods=['POST'])
 @login_required
-def changestate():
+def change_state():
     id = request.form['relayID']
-    app.logger.debug('Passed ID: ' + str(id))
+    app.logger.debug('Passed RelayID: ' + str(id))
 
     relay = Relay.query.get(id)
-
-    app.logger.debug('Changing state using AJAX. Relay ID: ' + str(relay.RelayID) + ' Current relay state: ' + str(relay.State))
-
-    if relay.State:
-        app.logger.debug('Turning relay OFF...')
-        result = RelayController.relayOff(relay)
-        app.logger.debug('Result: ' + str(result))
-        if result:
-            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'relayStateText' : 'Off'})
+    if relay:
+        app.logger.debug('Changing RelayState using AJAX. Relay ID: ' + str(relay.RelayID) + ' Current relay state: ' + str(relay.State))
+        if relay.State:
+            app.logger.debug('Turning relay OFF...')
+            result = RelayController.relayOff(relay)
         else:
-            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'error' : 'State change failed!'})
+            app.logger.debug('Turning relay ON...')
+            result = RelayController.relayOn(relay)
     else:
-        app.logger.debug('Turning relay ON...')
-        result = RelayController.relayOn(relay)
-        app.logger.debug('Result: ' + str(result))
-        if result:
-            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'relayStateText' : 'On'})
-        else:
-            return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'error' : 'State change failed!'})
+        result = False
 
+    app.logger.debug('Result: {}; RelayState: {}'.format(result, relay.State))
 
+    if result and relay.State:
+        return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'relayStateText' : 'On'})
+    elif result and not(relay.State):
+        return json.dumps({'ID' : 'relayID=' + str(relay.RelayID), 'relayStateText' : 'Off'})
+    else:
+        return json.dumps({'ID' : 'relayID=' + str(id), 'error' : 'State change failed!'})
+
+################################################################################
+# RelayScenario
+################################################################################
+@app.route('/relayscenario')
+@login_required
+def relay_scenario():
+    scenarios = RelayScenario.query.all()
+
+    return render_template('relayscenario.html', scenarios=scenarios)
+
+@app.route('/relayscenario/activate', methods=['POST'])
+@login_required
+def activate_relay_scenario():
+    id = request.form['relayScenarioID']
+    app.logger.debug('Passed RelayScenarioID: {}'.format(id))
+
+    scenario = RelayScenario.query.get(id)
+    if scenario:
+        app.logger.debug('Activating RelayScenario using AJAX. RelayScenarioID: {}'.format(scenario.RelayScenarioID))
+        result = RelayController.activateScenario(scenario)
+        app.logger.debug('Result: {}'.format(result))
+    else:
+        result = False
+
+    # Send JSON back to browser
+    if result:
+        return json.dumps({'ID' : 'relayScenarioID=' + str(scenario.RelayScenarioID), 'activationText' : 'Activated!'})
+    else:
+        return json.dumps({'ID' : 'relayScenarioID=' + str(id), 'error' : 'Activating scenario failed!'})
+
+################################################################################
 # Login functionality
+################################################################################
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))

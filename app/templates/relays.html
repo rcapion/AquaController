@@ -24,6 +24,7 @@
       <td>{{ i.RelayGroup.Name }}</td>
       <td>
   				<button id="relayID={{ i.RelayID }}">{{ 'On' if i.State else 'Off' }}</button>
+      </td>
     </tr>
     {% endfor %}
   </table>

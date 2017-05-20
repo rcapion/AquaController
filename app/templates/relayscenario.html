@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}RelaysScenario{% endblock %}
+{% block head %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='jquery-3.2.1.js') }}"></script>
+  <script src="{{ url_for('static', filename='relayScenarioActivate.js') }}"></script>
+{% endblock %}
+{% block content %}
+  <table>
+    <tr>
+      <th align="left">ID</th>
+      <th align="left">Name</th>
+      <th align="left">Activation</th>
+    </tr>
+    {% for scenario in scenarios: %}
+    <tr>
+      <td>{{ scenario.RelayScenarioID }}</td>
+      <td>{{ scenario.Name }}</td>
+      <td>
+          <button id="relayScenarioID={{ scenario.RelayScenarioID }}">Activate</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

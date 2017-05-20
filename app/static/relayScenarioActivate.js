@@ -3,10 +3,10 @@ $(document).ready(function(){
 	$("button").click(function() {
 		var id = $(this).attr('id');
 		if (document.getElementById(id).firstChild) {
-			document.getElementById(id).firstChild.data = 'Switching...';
+			document.getElementById(id).firstChild.data = 'Activating...';
 		}
 		$.ajax({
-			url: '/relays/changestate',
+			url: '/relayscenario/activate',
 			data: id,
 			type: 'POST',
 			success: function(response){
@@ -17,7 +17,10 @@ $(document).ready(function(){
 						element.data = resp.error;
 						console.log(resp)
 					} else {
-						element.data = resp.relayStateText;
+						element.data = resp.activationText;
+						setTimeout(function() {
+							element.data = 'Activate';
+						}, 5000);
 					}
 				}
 			},
