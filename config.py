@@ -6,8 +6,8 @@ LOGIN_PASSWORD = 'Test'
 
 # Debugging
 DEBUG = True
-DEBUG_TOOLBAR = False
-DEBUG_TB_INTERCEPT_REDIRECTS = True
+DEBUG_TOOLBAR = True
+DEBUG_TB_INTERCEPT_REDIRECTS = False
 
 SECRET_KEY = 'DenHemmeligeHemmeligeKode'
 

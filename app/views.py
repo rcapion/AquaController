@@ -2,6 +2,10 @@ from app import app, db, login_manager, scheduler
 from flask import render_template, flash, redirect, url_for, request, json
 from flask_login import login_required, login_user, logout_user, current_user
 
+from flask_wtf import FlaskForm
+from wtforms import StringField, RadioField, SubmitField
+from wtforms.validators import DataRequired, InputRequired, Length
+
 from urllib.parse import urlparse, urljoin
 
 from .models import Relay, User, RelayScenario
@@ -70,8 +74,20 @@ def relay_scenario():
 @login_required
 def relay_scenario_add():
     scenarios = RelayScenario.query.all()
+    relays = Relay.query.all()
 
-    return render_template('relayscenario.html', scenarios=scenarios)
+    class RelayScenarioAddForm(FlaskForm): pass
+    setattr(RelayScenarioAddForm, 'name', StringField('Name', validators=[InputRequired(), Length(min=1, max=50)]))
+    for relay in relays:
+        app.logger.debug('RelayID={}'.format(relay.RelayID))
+        setattr(RelayScenarioAddForm, 'RelayID={}'.format(relay.RelayID), RadioField('State for {} \'{}\''.format(relay.RelayID, relay.Name), choices=[('1', 'On'), ('0', 'Off'), ('-1', 'Not set')], default='-1', coerce=str, validators=[InputRequired()]))
+    setattr(RelayScenarioAddForm, 'submit', SubmitField('Save'))
+
+    form = RelayScenarioAddForm()
+    if form.validate_on_submit():
+        pass
+
+    return render_template('relayscenario_add.html', form=form)
 
 @app.route('/relayscenario/activate', methods=['POST'])
 @login_required
