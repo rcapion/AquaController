@@ -55,20 +55,24 @@ else:
 app.logger.info('AquaController startup')
 
 ###############################################################################
-# Instantiate scheduler
-scheduler = BackgroundScheduler({
-    'apscheduler.jobstores.default': {
-        'type': 'sqlalchemy',
-        'url': app.config['SQLALCHEMY_DATABASE_URI']
-    },
-    'apscheduler.executors.default': {
-        'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
-        'max_workers': '20'
-    },
-    'apscheduler.job_defaults.coalesce': 'false',
-    'apscheduler.job_defaults.max_instances': '3',
-    'apscheduler.logger': app.logger
-})
+if not os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    # Instantiate scheduler
+    scheduler = BackgroundScheduler({
+        'apscheduler.jobstores.default': {
+            'type': 'sqlalchemy',
+            'url': app.config['SQLALCHEMY_DATABASE_URI']
+        },
+        'apscheduler.executors.default': {
+            'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+            'max_workers': '20'
+        },
+        'apscheduler.job_defaults': {
+            'coalesce': 'true',
+            'max_instances': '1',
+            'misfire_grace_time': '59'
+        },
+        'apscheduler.logger': app.logger
+    })
 
 ###############################################################################
 # Import rest of app

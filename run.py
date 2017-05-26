@@ -1,18 +1,23 @@
 #!flask/bin/python3
-from app import app, scheduler
+import os
+from app import app
 import app.relaycontroller as RelayController
 
 if __name__ == '__main__':
-    try:
+
+    if not os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        # Start scheduler
+        scheduler.start()
+
         # Setup relays
         RelayController.setupRelays()
         RelayController.resumeState()
-        # Start scheduler
-        scheduler.start()
+
+    try:
         # Run app
         app.run(debug=True,host='0.0.0.0')
     finally:
-        # Reset GPIO
-        RelayController.cleanup()
-        # Stop scheduler
+        # Shut down the scheduler when exiting the app
         scheduler.shutdown(wait=False)
+        # Reset GPIO when exiting the app
+        RelayController.cleanup()
