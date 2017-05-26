@@ -6,7 +6,7 @@ class RelayGroup(db.Model):
     __tablename__ = 'RelayGroup'
     RelayGroupID = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(50), unique=True)
-    Relay = db.relationship('Relay', backref='RelayGroup', cascade='all, delete', lazy='dynamic')
+    Relay = db.relationship('Relay', backref='RelayGroup', lazy='dynamic')
 
     def __init__(self, Name=None):
         self.Name = Name
@@ -41,7 +41,7 @@ class RelayScenario(db.Model):
     __tablename__ = 'RelayScenario'
     RelayScenarioID = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(50), unique=True)
-    Setup = db.relationship('RelayScenarioSetup', backref='RelayScenario', lazy='dynamic')
+    Setup = db.relationship('RelayScenarioSetup', backref='RelayScenario', lazy='dynamic', cascade='all, delete-orphan')
 
     def __init__(self, Name=None):
         self.Name = Name
@@ -52,9 +52,9 @@ class RelayScenario(db.Model):
 
 class RelayScenarioSetup(db.Model):
     __tablename__ = 'RelayScenarioSetup'
-    SetupID = db.Column(db.Integer, primary_key=True)
-    RelayScenarioID = db.Column(db.Integer, db.ForeignKey('RelayScenario.RelayScenarioID'))
-    RelayID = db.Column(db.Integer, db.ForeignKey('Relay.RelayID'))
+    # SetupID = db.Column(db.Integer, primary_key=True)
+    RelayScenarioID = db.Column(db.Integer, db.ForeignKey('RelayScenario.RelayScenarioID'), primary_key=True)
+    RelayID = db.Column(db.Integer, db.ForeignKey('Relay.RelayID'), primary_key=True)
     State = db.Column(db.Boolean, nullable=True)
 
     def __init__(self, RelayScenarioID=None, RelayID=None, State=None):
@@ -63,7 +63,7 @@ class RelayScenarioSetup(db.Model):
         self.State = State
 
     def __repr__(self):
-        return '<RelayScenarioSetup {} - RelayScenario {}, Relay {}, State {}>'.format(self.SetupID, self.RelayScenarioID, self.RelayID, self.State)
+        return '<RelayScenarioSetup - RelayScenario {}, Relay {}, State {}>'.format(self.RelayScenarioID, self.RelayID, self.State)
 
 
 class User(UserMixin):

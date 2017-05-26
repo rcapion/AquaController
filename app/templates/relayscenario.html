@@ -15,11 +15,13 @@
     {% for scenario in scenarios: %}
     <tr>
       <td>{{ scenario.RelayScenarioID }}</td>
-      <td>{{ scenario.Name }}</td>
+      <td><a href="{{ url_for('relay_scenario_modify', scenarioID=scenario.RelayScenarioID) }}">{{ scenario.Name }}</a></td>
       <td>
           <button id="relayScenarioID={{ scenario.RelayScenarioID }}">Activate</button>
       </td>
     </tr>
     {% endfor %}
   </table>
+  <br>
+  <a href="{{ url_for('relay_scenario_add') }}">Add scenario</a>
 {% endblock %}
