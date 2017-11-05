@@ -1,5 +1,4 @@
-# from . import scheduler
-from app import app, db, login_manager
+from app import app, db, login_manager, scheduler
 from flask import render_template, flash, redirect, url_for, request, json
 from flask_login import login_required, login_user, logout_user, current_user
 
@@ -19,11 +18,11 @@ from app import relaycontroller as RelayController
 def index():
     return render_template('index.html')
 
-# @app.route('/scheduler')
-# @login_required
-# def sched():
-#     s = scheduler.get_jobs()
-#     return render_template('scheduler.html', scheduler=s)
+@app.route('/scheduler')
+@login_required
+def sched():
+    s = scheduler.get_jobs()
+    return render_template('scheduler.html', scheduler=s)
 
 ################################################################################
 # Relays
