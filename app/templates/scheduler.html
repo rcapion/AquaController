@@ -1,12 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Relays{% endblock %}
+{% block title %}Schedules{% endblock %}
 {% block head %}
   {{ super() }}
 {% endblock %}
 {% block content %}
     {% for s in scheduler: %}
-      {{ s.id }}<br>
-      {{ s.name }}<br>
-      {{ s.args }}<br>
+      ID: {{ s.id }}<br>
+      Name: {{ s.name }}<br>
+      Function: {{ s.func }}<br>
+      Arguments (positional): {{ s.args }}<br>
+      Arguments (keyword): {{ s.kwargs }}<br>
+      Coalesce: {{ s.coalesce }}<br>
+      Trigger: {{ s.trigger }}<br>
+      Executor: {{ s.executor }}<br>
+      Misfire grace time: {{ s.misfire_grace_time }}<br>
+      Max instances: {{ s.max_instances }}<br>
+      Next run time: {{ s.next_run_time }}<br>
+
+      <br>
     {% endfor %}
 {% endblock %}
